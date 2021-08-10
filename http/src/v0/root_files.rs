@@ -255,7 +255,7 @@ mod tests {
     use futures::stream::{FuturesOrdered, TryStreamExt};
     use hex_literal::hex;
     use ipfs::{Block, Ipfs, IpfsTypes, Node};
-    use multihash::Sha2_256;
+    use multihash::MultihashDigest;
     use std::convert::TryFrom;
     use std::io::Read;
     use std::path::PathBuf;
@@ -426,7 +426,7 @@ mod tests {
         ipfs: &'a Ipfs<T>,
         block: &'a [u8],
     ) -> impl std::future::Future<Output = Result<Cid, ipfs::Error>> + 'a {
-        let cid = Cid::new_v0(Sha2_256::digest(block)).unwrap();
+        let cid = Cid::new_v0(multihash::Code::Sha2_256.digest(block)).unwrap();
 
         let block = Block {
             cid,

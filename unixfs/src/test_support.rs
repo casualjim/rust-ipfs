@@ -2,6 +2,7 @@ use cid::Cid;
 use core::convert::TryFrom;
 use hash_hasher::HashedMap;
 use hex_literal::hex;
+use multihash::Multihash;
 
 #[derive(Default)]
 pub struct FakeBlockstore {
@@ -29,7 +30,7 @@ impl FakeBlockstore {
         sha.update(block);
         let result = sha.finalize();
 
-        let mh = multihash::wrap(multihash::Code::Sha2_256, &result[..]);
+        let mh = Multihash::wrap(u64::from(multihash::Code::Sha2_256), &result[..]).unwrap();
         let cid = Cid::new_v0(mh).unwrap();
 
         assert!(

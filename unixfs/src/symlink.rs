@@ -34,7 +34,8 @@ mod tests {
     use super::serialize_symlink_block;
     use cid::Cid;
     use core::convert::TryFrom;
-    use sha2::{Digest, Sha256};
+    use multihash::{Code, Hasher, MultihashDigest};
+    // use sha2::{Digest, Sha256};
 
     #[test]
     fn simple_symlink() {
@@ -45,7 +46,7 @@ mod tests {
         // `foo_directory/b`.
         serialize_symlink_block("b", &mut buf);
 
-        let mh = multihash::wrap(multihash::Code::Sha2_256, &Sha256::digest(&buf));
+        let mh = Code::multihash_from_digest(&multihash::Sha2_256::digest(&buf));
         let cid = Cid::new_v0(mh).expect("sha2_256 is the correct multihash for cidv0");
 
         assert_eq!(

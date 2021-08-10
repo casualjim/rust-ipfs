@@ -452,10 +452,11 @@ fn write_through_tempfile(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Block;
-    use cid::{Cid, Codec};
+    use crate::{ipld, Block};
+    use cid::Cid;
     use hex_literal::hex;
-    use multihash::Sha2_256;
+    use multihash::Code::Sha2_256;
+    use multihash::MultihashDigest;
     use std::convert::TryFrom;
     use std::env::temp_dir;
     use std::sync::Arc;
@@ -468,7 +469,7 @@ mod tests {
         let store = FsBlockStore::new(tmp.clone());
 
         let data = b"1".to_vec().into_boxed_slice();
-        let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+        let cid = Cid::new_v1(crate::ipld::DAG_RAW, Sha2_256.digest(&data));
         let block = Block::new(data, cid.clone());
 
         store.init().await.unwrap();
@@ -505,7 +506,7 @@ mod tests {
         std::fs::remove_dir_all(&tmp).ok();
 
         let data = b"1".to_vec().into_boxed_slice();
-        let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+        let cid = Cid::new_v1(ipld::DAG_RAW, Sha2_256.digest(&data));
         let block = Block::new(data, cid);
 
         let block_store = FsBlockStore::new(tmp.clone());
@@ -535,7 +536,7 @@ mod tests {
 
         for data in &[b"1", b"2", b"3"] {
             let data_slice = data.to_vec().into_boxed_slice();
-            let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data_slice));
+            let cid = Cid::new_v1(ipld::DAG_RAW, Sha2_256.digest(&data_slice));
             let block = Block::new(data_slice, cid);
             block_store.put(block.clone()).await.unwrap();
         }

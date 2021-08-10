@@ -256,7 +256,7 @@ fn ipld_links(
 ) -> impl Iterator<Item = (Option<String>, Cid)> + Send + 'static {
     // a wrapping iterator without there being a libipld_base::IpldIntoIter might not be doable
     // with safe code
-    let items = if cid.codec() == cid::Codec::DagProtobuf {
+    let items = if cid.codec() == crate::ipld::DAG_PB {
         dagpb_links(ipld)
     } else {
         ipld.iter()

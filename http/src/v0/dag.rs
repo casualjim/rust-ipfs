@@ -2,9 +2,12 @@ use crate::v0::support::{
     try_only_named_multipart, with_ipfs, MaybeTimeoutExt, NotImplemented, StringError,
     StringSerialized,
 };
-use cid::{Cid, Codec};
+use cid::Cid;
 use futures::stream::Stream;
-use ipfs::{Ipfs, IpfsTypes};
+use ipfs::{
+    ipld::{DAG_CBOR, DAG_JSON, DAG_PB, DAG_RAW},
+    Ipfs, IpfsTypes,
+};
 use mime::Mime;
 
 use serde::Deserialize;
@@ -49,26 +52,27 @@ async fn put_query<T: IpfsTypes>(
     mime: Mime,
     body: impl Stream<Item = Result<impl Buf, warp::Error>> + Unpin,
 ) -> Result<impl Reply, Rejection> {
-    use multihash::{Multihash, Sha2_256, Sha2_512, Sha3_512};
+    use multihash::{Code, Multihash, MultihashDigest};
 
     if query.encoding != InputEncoding::Raw {
         return Err(NotImplemented.into());
     }
 
     let (format, v0_fmt) = match query.format.as_deref().unwrap_or("dag-cbor") {
-        "dag-cbor" => (Codec::DagCBOR, false),
-        "dag-pb" => (Codec::DagProtobuf, true),
-        "dag-json" => (Codec::DagJSON, false),
-        "raw" => (Codec::Raw, false),
+        "dag-cbor" => (DAG_CBOR, false),
+        "dag-pb" => (DAG_PB, true),
+        "dag-json" => (DAG_JSON, false),
+        "raw" => (DAG_RAW, false),
         _ => return Err(StringError::from("unknown codec").into()),
     };
 
-    let (hasher, v0_hash) = match query.hash.as_deref().unwrap_or("sha2-256") {
-        "sha2-256" => (Sha2_256::digest as fn(&[u8]) -> Multihash, true),
-        "sha2-512" => (Sha2_512::digest as fn(&[u8]) -> Multihash, false),
-        "sha3-512" => (Sha3_512::digest as fn(&[u8]) -> Multihash, false),
-        _ => return Err(StringError::from("unknown hash").into()),
-    };
+    let (hasher, v0_hash): (fn(&[u8]) -> Multihash, bool) =
+        match query.hash.as_deref().unwrap_or("sha2-256") {
+            "sha2-256" => (|i: &[u8]| Code::Sha2_256.digest(i), true),
+            "sha2-512" => (|i: &[u8]| Code::Sha2_512.digest(i), false),
+            "sha3-512" => (|i: &[u8]| Code::Sha3_512.digest(i), false),
+            _ => return Err(StringError::from("unknown hash").into()),
+        };
 
     let boundary = mime
         .get_param("boundary")

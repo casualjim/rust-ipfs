@@ -190,6 +190,7 @@ mod tests {
     };
     use cid::Cid;
     use core::convert::TryFrom;
+    use multihash::{Code, Hasher, MultihashDigest};
 
     #[test]
     fn some_directories() {
@@ -439,7 +440,7 @@ mod tests {
     /// Returns a quick and dirty sha2-256 of the given number as a Cidv0
     fn some_cid(number: usize) -> Cid {
         use multihash::Sha2_256;
-        let mh = Sha2_256::digest(&number.to_le_bytes());
+        let mh = Code::multihash_from_digest(&Sha2_256::digest(&number.to_le_bytes()));
         Cid::new_v0(mh).unwrap()
     }
 }

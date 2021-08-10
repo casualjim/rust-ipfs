@@ -3,6 +3,7 @@ use super::{
 };
 use cid::Cid;
 use core::fmt;
+use multihash::Multihash;
 use std::collections::HashMap;
 
 /// Constructs the directory nodes required for a tree.
@@ -141,7 +142,11 @@ impl PostOrderIterator {
 
         buffer.truncate(size);
 
-        let mh = multihash::wrap(multihash::Code::Sha2_256, &Sha256::digest(buffer));
+        let mh = Multihash::wrap(
+            u64::from(multihash::Code::Sha2_256),
+            &Sha256::digest(buffer),
+        )
+        .expect("sha2_256 is the correct digest for cidv0");
         let cid = Cid::new_v0(mh).expect("sha2_256 is the correct multihash for cidv0");
 
         let combined_from_links = links

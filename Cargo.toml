@@ -21,19 +21,19 @@ test_js_interop = []
 anyhow = "1.0"
 async-stream = { default-features = false, version = "0.3" }
 async-trait = { default-features = false, version = "0.1" }
-base64 = { default-features = false, features = ["alloc"], version = "0.12" }
+base64 = { default-features = false, features = ["alloc"], version = "0.13" }
 ipfs-bitswap = { version = "0.1", path = "bitswap" }
 byteorder = { default-features = false, version = "1.3" }
 bytes = { default-features = false, version = "1" }
-cid = { default-features = false, version = "0.5" }
+cid = { default-features = false, version = "0.7" }
 trust-dns-resolver = "0.20"
 either = { default-features = false, version = "1.5" }
 futures = { default-features = false, version = "0.3.9", features = ["alloc", "std"] }
 hash_hasher = "2.0.3"
 ipfs-unixfs = { version = "0.2", path = "unixfs" }
 libp2p = { default-features = false, features = ["floodsub", "identify", "kad", "tcp-tokio", "mplex", "noise", "ping", "yamux", "dns"], version = "0.34" }
-multibase = { default-features = false, version = "0.8" }
-multihash = { default-features = false, version = "0.11" }
+multibase = { default-features = false, version = "0.9" }
+multihash = { default-features = false, version = "0.14", features = ["multihash-impl"] }
 prost = { default-features = false, version = "0.8" }
 serde = { default-features = false, features = ["derive"], version = "1.0" }
 serde_json = { default-features = false, features = ["std"], version = "1.0" }

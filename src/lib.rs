@@ -39,7 +39,6 @@ pub mod unixfs;
 extern crate tracing;
 
 use anyhow::{anyhow, format_err};
-use cid::Codec;
 use either::Either;
 use futures::{
     channel::{
@@ -591,7 +590,7 @@ impl<Types: IpfsTypes> Ipfs<Types> {
     /// Returns Cid version 1 for the document
     pub async fn put_dag(&self, ipld: Ipld) -> Result<Cid, Error> {
         self.dag()
-            .put(ipld, Codec::DagCBOR)
+            .put(ipld, crate::ipld::DAG_CBOR)
             .instrument(self.span.clone())
             .await
     }
@@ -1774,14 +1773,14 @@ mod node {
 mod tests {
     use super::*;
     use crate::make_ipld;
-    use multihash::Sha2_256;
+    use multihash::{Code::Sha2_256, MultihashDigest};
 
     #[tokio::test]
     async fn test_put_and_get_block() {
         let ipfs = Node::new("test_node").await;
 
         let data = b"hello block\n".to_vec().into_boxed_slice();
-        let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+        let cid = Cid::new_v1(ipld::DAG_RAW, Sha2_256.digest(&data));
         let block = Block::new(data, cid);
 
         let cid: Cid = ipfs.put_block(block.clone()).await.unwrap();

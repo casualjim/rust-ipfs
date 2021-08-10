@@ -11,15 +11,15 @@ repository = "https://github.com/rs-ipfs/rust-ipfs"
 prost-build = { default-features = false, version = "0.8" }
 
 [dependencies]
-cid = { default-features = false, version = "0.5" }
+cid = { default-features = false, version = "0.7" }
 fnv = { default-features = false, version = "1.0" }
 futures = { default-features = false, version = "0.3" }
 hash_hasher = "2.0.3"
 libp2p-core = { default-features = false, version = "0.27" }
 libp2p-swarm = { default-features = false, version = "0.27" }
-multihash = { default-features = false, version = "0.11" }
+multihash = { default-features = false, version = "0.14", features = ["multihash-impl"] }
 prost = { default-features = false, version = "0.8", features = ["std"] }
 thiserror = { default-features = false, version = "1.0" }
 tokio = { default-features = false, version = "1", features = ["rt"] }
 tracing = { default-features = false, version = "0.1" }
-unsigned-varint = { default-features = false, version = "0.3" }
+unsigned-varint = { default-features = false, version = "0.7" }

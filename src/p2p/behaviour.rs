@@ -513,7 +513,7 @@ impl<Types: IpfsTypes> Behaviour<Types> {
     // FIXME: it would be best if get_providers is called only in case the already connected
     // peers don't have it
     pub fn want_block(&mut self, cid: Cid) {
-        let key = cid.hash().as_bytes().to_owned();
+        let key = cid.hash().to_bytes().to_owned();
         self.kademlia.get_providers(key.into());
         self.bitswap.want_block(cid, 1);
     }
@@ -555,7 +555,7 @@ impl<Types: IpfsTypes> Behaviour<Types> {
     }
 
     pub fn get_providers(&mut self, cid: Cid) -> SubscriptionFuture<KadResult, String> {
-        let key = Key::from(cid.hash().as_bytes().to_owned());
+        let key = Key::from(cid.hash().to_bytes().to_owned());
         self.kad_subscriptions
             .create_subscription(self.kademlia.get_providers(key).into(), None)
     }
@@ -564,7 +564,7 @@ impl<Types: IpfsTypes> Behaviour<Types> {
         &mut self,
         cid: Cid,
     ) -> Result<SubscriptionFuture<KadResult, String>, anyhow::Error> {
-        let key = Key::from(cid.hash().as_bytes().to_owned());
+        let key = Key::from(cid.hash().to_bytes().to_owned());
         match self.kademlia.start_providing(key) {
             Ok(id) => Ok(self.kad_subscriptions.create_subscription(id.into(), None)),
             Err(e) => {

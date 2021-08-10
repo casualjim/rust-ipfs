@@ -1,6 +1,6 @@
-use cid::{Cid, Codec};
+use cid::Cid;
 use ipfs::Block;
-use multihash::Sha2_256;
+use multihash::{Code::Sha2_256, MultihashDigest};
 use std::time::Duration;
 use tokio::time;
 
@@ -50,7 +50,7 @@ async fn bitswap_stress_test() {
     tracing_subscriber::fmt::init();
 
     let data = b"hello block\n".to_vec().into_boxed_slice();
-    let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+    let cid = Cid::new_v1(0x55, Sha2_256.digest(&data));
 
     let nodes = spawn_nodes(5, Topology::Mesh).await;
 

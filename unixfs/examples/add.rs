@@ -119,6 +119,7 @@ fn get_process_stats() -> Option<ProcessStats> {
 fn get_process_stats() -> Option<ProcessStats> {
     None
 }
+const DAG_PB: u64 = 0x70;
 
 #[derive(Default)]
 struct Stats {
@@ -130,7 +131,7 @@ struct Stats {
 impl fmt::Display for Stats {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         let hash = self.last.as_ref().unwrap().hash();
-        let cidv1 = Cid::new_v1(cid::Codec::DagProtobuf, hash.to_owned());
+        let cidv1 = Cid::new_v1(DAG_PB, hash.to_owned());
         write!(
             fmt,
             "{} blocks, {} block bytes, {} or {}",

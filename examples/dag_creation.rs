@@ -16,6 +16,7 @@ async fn main() {
     let f2 = ipfs.put_dag(make_ipld!("block2"));
     let (res1, res2) = join!(f1, f2);
     let root = make_ipld!([res1.unwrap(), res2.unwrap()]);
+    eprintln!("root: {:?}", &root);
     let cid = ipfs.put_dag(root).await.unwrap();
     let path = IpfsPath::from(cid);
 

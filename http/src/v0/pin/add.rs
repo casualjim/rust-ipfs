@@ -35,10 +35,14 @@ pub async fn add_inner<T: IpfsTypes>(
 
     let recursive = request.recursive;
 
-    let dispatched_pins = cids.into_iter().map(|x| async {
-        ipfs.insert_pin(&x, recursive)
-            .await
-            .map(move |_| StringSerialized(x))
+    let dispatched_pins = cids.into_iter().map(|x| {
+        let ii = ipfs.clone();
+        async move {
+            ii.clone()
+                .insert_pin(&x, recursive)
+                .await
+                .map(move |_| StringSerialized(x))
+        }
     });
 
     // could be unordered :)

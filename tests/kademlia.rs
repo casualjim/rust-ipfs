@@ -1,7 +1,7 @@
-use cid::{Cid, Codec};
+use cid::Cid;
 use ipfs::{p2p::MultiaddrWithPeerId, Block, Node};
 use libp2p::{kad::Quorum, multiaddr::Protocol, Multiaddr};
-use multihash::Sha2_256;
+use multihash::{Code, MultihashDigest};
 use tokio::time::timeout;
 
 use std::{convert::TryInto, time::Duration};
@@ -155,7 +155,7 @@ async fn dht_providing() {
 
     // the last node puts a block in order to have something to provide
     let data = b"hello block\n".to_vec().into_boxed_slice();
-    let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+    let cid = Cid::new_v1(0x55, Code::Sha2_256.digest(&data));
     nodes[last_index]
         .put_block(Block {
             cid: cid.clone(),

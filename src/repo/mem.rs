@@ -682,8 +682,8 @@ crate::pinstore_interface_tests!(common_tests, crate::repo::mem::MemDataStore::n
 mod tests {
     use super::*;
     use crate::Block;
-    use cid::{Cid, Codec};
-    use multihash::Sha2_256;
+    use cid::Cid;
+    use multihash::{Code, MultihashDigest};
     use std::env::temp_dir;
 
     #[tokio::test]
@@ -691,7 +691,7 @@ mod tests {
         let tmp = temp_dir();
         let store = MemBlockStore::new(tmp);
         let data = b"1".to_vec().into_boxed_slice();
-        let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data));
+        let cid = Cid::new_v1(crate::ipld::DAG_RAW, Code::Sha2_256.digest(&data));
         let block = Block::new(data, cid.clone());
 
         store.init().await.unwrap();
@@ -729,7 +729,7 @@ mod tests {
 
         for data in &[b"1", b"2", b"3"] {
             let data_slice = data.to_vec().into_boxed_slice();
-            let cid = Cid::new_v1(Codec::Raw, Sha2_256::digest(&data_slice));
+            let cid = Cid::new_v1(crate::ipld::DAG_RAW, Code::Sha2_256.digest(&data_slice));
             let block = Block::new(data_slice, cid);
             mem_store.put(block.clone()).await.unwrap();
             assert!(mem_store.contains(block.cid()).await.unwrap());

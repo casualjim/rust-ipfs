@@ -1,7 +1,7 @@
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
-use cid::{self, Cid, Codec, Version};
-use multihash::Code;
+use cid::{self, Cid, Version};
+use multihash::{Code, Multihash, MultihashDigest};
 use unsigned_varint::{decode as varint_decode, encode as varint_encode};
 
 /// Prefix represents all metadata of a CID, without the actual content.
@@ -10,7 +10,7 @@ pub struct Prefix {
     /// The version of CID.
     pub version: Version,
     /// The codec of CID.
-    pub codec: Codec,
+    pub codec: u64,
     /// The multihash type of CID.
     pub mh_type: Code,
     /// The multihash length of CID.
@@ -23,8 +23,8 @@ impl Prefix {
         let (raw_version, remain) = varint_decode::u64(data)?;
         let version = Version::try_from(raw_version)?;
 
-        let (raw_codec, remain) = varint_decode::u64(remain)?;
-        let codec = Codec::try_from(raw_codec)?;
+        let (codec, remain) = varint_decode::u64(remain)?;
+        // let codec = Codec::try_from(raw_codec)?;
 
         let (raw_mh_type, remain) = varint_decode::u64(remain)?;
         let mh_type = match multihash::Code::try_from(raw_mh_type) {
@@ -50,7 +50,7 @@ impl Prefix {
         let version = varint_encode::u64(self.version.into(), &mut buf);
         res.extend_from_slice(version);
         let mut buf = varint_encode::u64_buffer();
-        let codec = varint_encode::u64(self.codec.into(), &mut buf);
+        let codec = varint_encode::u64(self.codec, &mut buf);
         res.extend_from_slice(codec);
         let mut buf = varint_encode::u64_buffer();
         let mh_type = varint_encode::u64(self.mh_type.into(), &mut buf);
@@ -66,7 +66,7 @@ impl Prefix {
     pub fn to_cid(&self, data: &[u8]) -> Result<Cid, cid::Error> {
         let mut hash = self.mh_type.digest(data);
         if self.mh_len < hash.digest().len() {
-            hash = multihash::wrap(hash.algorithm(), &hash.digest()[..self.mh_len]);
+            hash = Multihash::wrap(hash.code(), &hash.digest()[..self.mh_len])?;
         }
         Cid::new(self.version, self.codec, hash)
     }
@@ -77,7 +77,7 @@ impl From<&Cid> for Prefix {
         Self {
             version: cid.version(),
             codec: cid.codec(),
-            mh_type: cid.hash().algorithm(),
+            mh_type: cid.hash().code().try_into().unwrap(),
             mh_len: cid.hash().digest().len(),
         }
     }

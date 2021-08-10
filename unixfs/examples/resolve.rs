@@ -70,8 +70,8 @@ pub enum PathError {
 
 impl fmt::Display for PathError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            PathError::InvalidCid(e) => write!(fmt, "{}", e),
+        match self {
+            PathError::InvalidCid(ref e) => write!(fmt, "{}", e.to_owned()),
             PathError::InvalidPath => write!(fmt, "invalid path"),
         }
     }

@@ -3,13 +3,13 @@ use crate::v0::support::{
     StringSerialized,
 };
 use bytes::Buf;
-use cid::{Cid, Codec, Version};
+use cid::{Cid, Version};
 use futures::stream::{FuturesOrdered, Stream, StreamExt};
 use ipfs::error::Error;
 use ipfs::{Ipfs, IpfsTypes};
 use mime::Mime;
 
-use multihash::Multihash;
+use multihash::{Multihash, MultihashDigest};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use warp::{http::Response, query, reply, Filter, Rejection, Reply};
@@ -58,20 +58,20 @@ pub struct PutQuery {
 }
 
 impl PutQuery {
-    fn format(&self) -> Result<Codec, Rejection> {
+    fn format(&self) -> Result<u64, Rejection> {
         Ok(match self.format.as_deref().unwrap_or("dag-pb") {
-            "dag-cbor" => Codec::DagCBOR,
-            "dag-pb" => Codec::DagProtobuf,
-            "dag-json" => Codec::DagJSON,
-            "raw" => Codec::Raw,
+            "dag-cbor" => ipfs::ipld::DAG_CBOR,
+            "dag-pb" => ipfs::ipld::DAG_PB,
+            "dag-json" => ipfs::ipld::DAG_JSON,
+            "raw" => ipfs::ipld::DAG_RAW,
             _ => return Err(StringError::from("unknown codec").into()),
         })
     }
 
     fn digest(&self) -> Result<fn(&'_ [u8]) -> Multihash, Rejection> {
         Ok(match self.mhtype.as_deref().unwrap_or("sha2-256") {
-            "sha2-256" => multihash::Sha2_256::digest,
-            "sha2-512" => multihash::Sha2_512::digest,
+            "sha2-256" => |i: &[u8]| multihash::Code::Sha2_256.digest(i),
+            "sha2-512" => |i: &[u8]| multihash::Code::Sha2_512.digest(i),
             _ => return Err(StringError::from("unknown hash").into()),
         })
     }

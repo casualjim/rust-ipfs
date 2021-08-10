@@ -33,7 +33,7 @@ pub fn version(
 ) -> impl std::future::Future<Output = Result<(impl warp::Reply,), std::convert::Infallible>> {
     let response = Response {
         version: env!("CARGO_PKG_VERSION"), // TODO: move over to rust-ipfs not to worry about syncing version numbers?
-        commit: env!("VERGEN_SHA_SHORT"),
+        commit: env!("VERGEN_GIT_SHA"),
         repo: "",
         ipfs_http_client: "",
         interface_ipfs_core: "",
